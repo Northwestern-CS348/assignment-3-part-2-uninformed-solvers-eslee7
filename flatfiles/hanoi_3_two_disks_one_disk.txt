@@ -5,9 +5,9 @@ all disks are on peg1.
 
         |            |            |
         |            |            |
-       -|- disk1     |            |
-      --|-- disk2    |            |
-     ---|---         |            |
+        |            |            |
+        |          --|-- disk2    |
+        |         ---|--- disk3  -|- disk1
 ==========================================
        peg1         peg2         peg3
        
@@ -16,29 +16,26 @@ fact: (pred obj1 obj2)
 rule: ((pred obj1 obj2) (pred obj2 obj3)) -> (pred obj1 obj3)
 
 """
+rule: ((onDisk ?x ?y) (on ?y ?z)) -> (on ?x ?z)
+fact: (on disk1 peg3)
+fact: (on disk3 peg2)
+
+rule: ((onDisk ?x ?y) (onDisk ?y ?z)) -> (onDisk ?x ?z)
+fact: (onDisk disk2 disk3)
+
 fact: (isPeg peg1)
 fact: (isPeg peg2)
 fact: (isPeg peg3)
 
 rule: ((larger ?x ?y) (larger ?y ?z)) -> (larger ?x ?z)
+
 fact: (larger disk3 disk2)
 fact: (larger disk2 disk1)
 
+fact: (empty peg1)
 
-
-rule: ((onDisk ?x ?y) (on ?y ?z)) -> (on ?x ?z)
-fact: (on disk3 peg1)
-
-rule: ((onDisk ?x ?y) (onDisk ?y ?z)) -> (onDisk ?x ?z)
-fact: (onDisk disk2 disk3)
-fact: (onDisk disk1 disk2)
-
-fact: (empty peg2)
-fact: (empty peg3)
-
-fact: (topDisk disk1 peg1)
-
-
+fact: (topDisk disk2 peg2)
+fact: (topDisk disk1 peg3)
 
 rule: ((topDisk ?a ?x) (empty ?y)) -> (movable ?a ?x ?y)
 rule: ((topDisk ?a ?x) (topDisk ?b ?y) (larger ?b ?a)) -> (movable ?a ?x ?y)

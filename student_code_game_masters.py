@@ -33,8 +33,30 @@ class TowerOfHanoiGame(GameMaster):
         Returns:
             A Tuple of Tuples that represent the game state
         """
-        ### student code goes here
-        pass
+        pegs = []
+        for fact in self.kb.facts:
+            if fact.statement.predicate == 'isPeg':
+                peg_num = self.get_peg_num(fact.statement.terms[0])
+                pegs.append([])
+
+        for fact in self.kb.facts:
+            if fact.statement.predicate == 'on':
+                disk_num = self.get_disk_num(fact.statement.terms[0])
+                peg_num = self.get_peg_num(fact.statement.terms[1])
+                pegs[peg_num - 1].insert(0, disk_num) # hacky shortcut rn; go back to ensure this list is in order !!!
+
+        for index, list in enumerate(pegs):
+            pegs[index] = tuple(list)
+
+        return tuple(pegs)
+
+    def get_disk_num(self, disk_term):
+        # helper for getting disk number
+        return int(str(disk_term)[4:])
+
+    def get_peg_num(self, peg_term):
+        # helper for getting peg number
+        return int(str(peg_term)[3:])
 
     def makeMove(self, movable_statement):
         """
@@ -52,8 +74,78 @@ class TowerOfHanoiGame(GameMaster):
         Returns:
             None
         """
-        ### Student code goes here
-        pass
+
+        game_state = self.getGameState()
+        disk = movable_statement.terms[0]
+        oldpeg = movable_statement.terms[1]
+        newpeg = movable_statement.terms[2]
+
+        disk_num = self.get_disk_num(disk)
+        oldpeg_num = self.get_peg_num(oldpeg)
+        newpeg_num = self.get_peg_num(newpeg)
+
+        # if the peg that you left will be empty, declare it as empty
+        if (len(game_state[oldpeg_num - 1]) == 1):
+            # if so, it's empty!
+            self.kb.kb_add(Fact(['empty', str(oldpeg)]))
+            print('Making old peg ' + str(oldpeg) + ' empty')
+
+        else:
+            # else, if the peg you left is not going to be empty, find the disk below and make it topDisk
+            for fact in self.kb.facts:
+                if fact.statement.predicate == 'onDisk' and fact.statement.terms[0] == disk:
+                    # get rid of the "onDisk" between the removed disk and the next dist
+                    self.kb.kb_retract(fact)
+                    # Add new topDisk
+                    print('Updating top disk of old peg to be ' + str(fact.statement.terms[1]))
+                    next_disk = fact.statement.terms[1]
+                    self.kb.kb_add(Fact(['topDisk', str(next_disk), str(oldpeg)]))
+                    break
+
+
+        # if the peg you're going to is empty,
+        # 1. make the dest peg not empty anymore
+        # 2. "on" the disk to the peg
+        if len(game_state[newpeg_num - 1]) == 0:
+            for fact in self.kb.facts:
+                if fact.statement.predicate == 'empty' and fact.statement.terms[0] == newpeg:
+                    print('Retracting that the new peg ' + str(newpeg) + ' is empty, since it will have disk')
+                    self.kb.kb_retract(fact)
+                    break
+            self.kb.kb_add(Fact(['on', str(disk), str(newpeg)]))
+
+        # else, if the peg you're going to is not empty
+        # 1. "onDisk" it to the topDisk of the new peg
+        # 2. retract that the oldTopDisk is the topDisk
+        else:
+            for fact in self.kb.facts:
+                # find old topDisk
+                if fact.statement.predicate == 'topDisk' and fact.statement.terms[1] == newpeg:
+                    oldTopDisk = fact.statement.terms[0]
+                    self.kb.kb_add(Fact(['onDisk', str(disk), str(oldTopDisk)]))
+                    self.kb.kb_retract(fact)
+                    break
+
+        # update topDisk:
+        # 1. remove the disk as a topDisk of the old peg
+        for fact in self.kb.facts:
+            if fact.statement.predicate == 'topDisk' and fact.statement.terms[0] == disk and \
+                    fact.statement.terms[1] == oldpeg:
+                print("Retracting that the topDisk of " + str(oldpeg) + " is " + str(disk))
+                self.kb.kb_retract(fact)
+                break
+        # 2. undo the "on" on the old peg
+        for fact in self.kb.facts:
+            if fact.statement.predicate == 'on' and fact.statement.terms[0] == disk and \
+                    fact.statement.terms[1] == oldpeg:
+                print("Taking disk " + str(disk) + ' off old peg')
+                self.kb.kb_retract(fact)
+                break
+        # 3. add it as topDisk of new peg
+        self.kb.kb_add(Fact(['topDisk', str(disk), str(newpeg)]))
+
+
+        return
 
     def reverseMove(self, movable_statement):
         """
