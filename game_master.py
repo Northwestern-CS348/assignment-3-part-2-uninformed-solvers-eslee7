@@ -3,8 +3,8 @@ from kb_and_inference_engine import *
 from read import *
 import os
 
-class GameMaster(object):
 
+class GameMaster(object):
     """
     Abstract parent class of game masters. Must not be instantiated directly.
 
@@ -19,7 +19,7 @@ class GameMaster(object):
         forbidden (list of Fact): all MOVABLE statements that must not be in the KB in the winning game state
     """
 
-    TXTS_DIRECTORY_PATH='flatfiles'
+    TXTS_DIRECTORY_PATH = 'flatfiles'
 
     def __init__(self):
         self.kb = KnowledgeBase([], [])
@@ -38,8 +38,8 @@ class GameMaster(object):
         Returns:
              A Fact object that could be used to query the currently available moves
         """
-        raise NotImplementedError('Subclasses must override produceMovableQuery() '\
-            'to provide the query for facts starting with MOVABLE predicate')
+        raise NotImplementedError('Subclasses must override produceMovableQuery() ' \
+                                  'to provide the query for facts starting with MOVABLE predicate')
 
     def isMovableLegal(self, movable_statement):
         """
@@ -67,8 +67,8 @@ class GameMaster(object):
         Returns:
             None
         """
-        raise NotImplementedError('Subclasses must override makeMove(..) '\
-            'to make a move to change the game state')
+        raise NotImplementedError('Subclasses must override makeMove(..) ' \
+                                  'to make a move to change the game state')
 
     def reverseMove(self, movable_statement):
         """
@@ -85,8 +85,8 @@ class GameMaster(object):
         Returns:
             None
         """
-        raise NotImplementedError('Subclasses must override reverseMove(..) '\
-            'to make the reverse move specified by the argument')
+        raise NotImplementedError('Subclasses must override reverseMove(..) ' \
+                                  'to make the reverse move specified by the argument')
 
     def getGameState(self):
         """
@@ -97,19 +97,25 @@ class GameMaster(object):
         Returns:
             A Tuple of Tuples that represent the game state
         """
-        raise NotImplementedError('Subclasses must override getGameState() '\
-            'to return a summary of the current game state')
+        raise NotImplementedError('Subclasses must override getGameState() ' \
+                                  'to return a summary of the current game state')
 
     def getMovables(self):
         """
+        Returns a list of MOVABLE statements that represent the moves currently available.
+
+        The output Statements will be sorted in ascending orders, first order by the text of predicates,
+        then by each Term in the Statement.
+
         Returns:
             A list of MOVABLE statements indicating the presently viable moves, if at least one is present;
             False otherwise.
         """
         listOfBindings = self.kb.kb_ask(self.moveableQuery)
         if listOfBindings:
-            return [instantiate(self.moveableQuery.statement,bindings)\
-                     for bindings in listOfBindings]
+            statements = [instantiate(self.moveableQuery.statement, bindings) for bindings in listOfBindings]
+            statements.sort()
+            return statements
         else:
             return listOfBindings
 

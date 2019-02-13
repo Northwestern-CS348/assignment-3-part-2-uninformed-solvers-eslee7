@@ -144,7 +144,6 @@ class TowerOfHanoiGame(GameMaster):
         # 3. add it as topDisk of new peg
         self.kb.kb_add(Fact(['topDisk', str(disk), str(newpeg)]))
 
-
         return
 
     def reverseMove(self, movable_statement):
@@ -191,8 +190,31 @@ class Puzzle8Game(GameMaster):
         Returns:
             A Tuple of Tuples that represent the game state
         """
-        ### Student code goes here
-        pass
+        '''
+        pegs = []
+        for fact in self.kb.facts:
+            if fact.statement.predicate == 'isPeg':
+                peg_num = self.get_peg_num(fact.statement.terms[0])
+                pegs.append([])
+
+        for fact in self.kb.facts:
+            if fact.statement.predicate == 'on':
+                disk_num = self.get_disk_num(fact.statement.terms[0])
+                peg_num = self.get_peg_num(fact.statement.terms[1])
+                pegs[peg_num - 1].insert(0, disk_num) # hacky shortcut rn; go back to ensure this list is in order !!!
+
+        for index, list in enumerate(pegs):
+            pegs[index] = tuple(list)
+
+        return tuple(pegs)'''
+
+        rows = [[],[],[]]
+        for fact in self.kb.facts:
+            if fact.statement.predicate == 'x' and str(fact.statement.terms[1]) == 'pos1':
+
+    def get_tile_num(self, tile_term):
+    # helper for getting tile number
+        return int(str(tile_term)[4:])
 
     def makeMove(self, movable_statement):
         """

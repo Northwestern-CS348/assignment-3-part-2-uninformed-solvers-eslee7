@@ -1,5 +1,6 @@
 from util import is_var
 
+
 class Fact(object):
     """Represents a fact in our knowledge base. Has a statement containing the
         content of the fact, e.g. (isa Sorceress Wizard) and fields tracking
@@ -15,6 +16,7 @@ class Fact(object):
         supports_facts (listof Fact): Facts that this fact supports
         supports_rules (listof Rule): Rules that this fact supports
     """
+
     def __init__(self, statement, supported_by=[]):
         """Constructor for Fact setting up useful flags and generating appropriate statement
 
@@ -28,20 +30,20 @@ class Fact(object):
         self.name = "fact"
         self.statement = statement if isinstance(statement, Statement) else Statement(statement)
         self.asserted = not supported_by
-        #self.supported_by = supported_by
+        # self.supported_by = supported_by
         self.supported_by = []
         self.supports_facts = []
         self.supports_rules = []
         for pair in supported_by:
-           self.supported_by.append(pair)
+            self.supported_by.append(pair)
 
     def __repr__(self):
         """Define internal string representation
         """
         return 'Fact({!r}, {!r}, {!r}, {!r}, {!r}, {!r})'.format(
-                self.name, self.statement,
-                self.asserted, self.supported_by,
-                self.supports_facts, self.supports_rules)
+            self.name, self.statement,
+            self.asserted, self.supported_by,
+            self.supports_facts, self.supports_rules)
 
     def __str__(self):
         """Define external representation when printed
@@ -73,6 +75,7 @@ class Fact(object):
         """
         return not self == other
 
+
 class Rule(object):
     """Represents a rule in our knowledge base. Has a list of statements (the LHS)
         containing the statements that need to be in our KB for us to infer the
@@ -90,6 +93,7 @@ class Rule(object):
         supports_facts (listof Fact): Facts that this rule supports
         supports_rules (listof Rule): Rules that this rule supports
     """
+
     def __init__(self, rule, supported_by=[]):
         """Constructor for Rule setting up useful flags and generating appropriate LHS & RHS
 
@@ -114,9 +118,9 @@ class Rule(object):
         """Define internal string representation
         """
         return 'Rule({!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r})'.format(
-                self.name, self.lhs, self.rhs,
-                self.asserted, self.supported_by,
-                self.supports_facts, self.supports_rules)
+            self.name, self.lhs, self.rhs,
+            self.asserted, self.supported_by,
+            self.supports_facts, self.supports_rules)
 
     def __str__(self):
         """Define external representation when printed
@@ -128,7 +132,7 @@ class Rule(object):
         string += "\t Right hand:\n\t\t" + str(self.rhs) + "\n"
         string += "\t Asserted:       " + str(self.asserted) + "\n"
         if self.supported_by != []:
-            name_strings = [str(x.name) for y in self.supported_by for x in y ]
+            name_strings = [str(x.name) for y in self.supported_by for x in y]
             supported_by_str = ", ".join(name_strings)
             string += "\t Supported by:   [" + supported_by_str + "]\n"
         if self.supports_facts != []:
@@ -152,6 +156,7 @@ class Rule(object):
         """
         return not self == other
 
+
 class Statement(object):
     """Represents a statement in our knowledge base, e.g. (attacked Ai Nosliw),
         (diamonds Loot), (isa Sorceress Wizard), etc. These statements show up
@@ -162,6 +167,7 @@ class Statement(object):
             statement, e.g. 'Nosliw' or '?d'
         predicate (str): The predicate of the statement, e.g. isa, hero, needs
     """
+
     def __init__(self, statement_list=[]):
         """Constructor for Statements with optional list of Statements that are
             converted to appropriate terms (and one predicate)
@@ -179,6 +185,21 @@ class Statement(object):
         if statement_list:
             self.predicate = statement_list[0]
             self.terms = [t if isinstance(t, Term) else Term(t) for t in statement_list[1:]]
+
+    def __lt__(self, other):
+        if self.predicate != other.predicate:
+            return self.predicate < other.predicate
+        length = len(self.terms)
+        isSelfShorter = True
+        if len(other.terms) < length:
+            length = len(other.terms)
+            isSelfShorter = False
+        for i in range(length):
+            selfT = self.terms[i].term.element
+            otherT = other.terms[i].term.element
+            if selfT != otherT:
+                return selfT < otherT
+        return isSelfShorter
 
     def __repr__(self):
         """Define internal string representation
@@ -207,6 +228,7 @@ class Statement(object):
         """
         return not self == other
 
+
 class Term(object):
     """Represents a term (a Variable or Constant) in our knowledge base. Can
         sorta be thought of as a super class of Variable and Constant, though
@@ -215,6 +237,7 @@ class Term(object):
     Attributes:
         term (Variable|Constant): The Variable or Constant that this term holds (represents)
     """
+
     def __init__(self, term):
         """Constructor for Term which converts term to appropriate form
 
@@ -240,14 +263,15 @@ class Term(object):
         """Define behavior of == when applied to this object
         """
         return (self is other
-            or isinstance(other, Term) and self.term.element == other.term.element
-            or ((isinstance(other, Variable) or isinstance(other, Constant))
-                and self.term.element == other.element))
+                or isinstance(other, Term) and self.term.element == other.term.element
+                or ((isinstance(other, Variable) or isinstance(other, Constant))
+                    and self.term.element == other.element))
 
     def __ne__(self, other):
         """Define behavior of != when applied to this object
         """
         return not self == other
+
 
 class Variable(object):
     """Represents a variable used in statements
@@ -255,6 +279,7 @@ class Variable(object):
     Attributes:
         element (str): The name of the variable, e.g. '?x'
     """
+
     def __init__(self, element):
         """Constructor for Variable
 
@@ -278,14 +303,15 @@ class Variable(object):
         """Define behavior of == when applied to this object
         """
         return (self is other
-            or isinstance(other, Term) and self.term.element == other.term.element
-            or ((isinstance(other, Variable) or isinstance(other, Constant))
-                and self.term.element == other.element))
+                or isinstance(other, Term) and self.term.element == other.term.element
+                or ((isinstance(other, Variable) or isinstance(other, Constant))
+                    and self.term.element == other.element))
 
     def __ne__(self, other):
         """Define behavior of != when applied to this object
         """
         return not self == other
+
 
 class Constant(object):
     """Represents a constant used in statements
@@ -293,6 +319,7 @@ class Constant(object):
     Attributes:
         element (str): The value of the constant, e.g. 'Nosliw'
     """
+
     def __init__(self, element):
         """Constructor for Constant
 
@@ -316,14 +343,15 @@ class Constant(object):
         """Define behavior of == when applied to this object
         """
         return (self is other
-            or isinstance(other, Term) and self.term.element == other.term.element
-            or ((isinstance(other, Variable) or isinstance(other, Constant))
-                and self.term.element == other.element))
+                or isinstance(other, Term) and self.term.element == other.term.element
+                or ((isinstance(other, Variable) or isinstance(other, Constant))
+                    and self.term.element == other.element))
 
     def __ne__(self, other):
         """Define behavior of != when applied to this object
         """
         return not self == other
+
 
 class Binding(object):
     """Represents a binding of a constant to a variable, e.g. 'Nosliw' might be
@@ -333,6 +361,7 @@ class Binding(object):
         variable (Variable): The name of the variable associated with this binding
         constant (Constant): The value of the variable
     """
+
     def __init__(self, variable, constant):
         """Constructor for Binding
 
@@ -354,6 +383,7 @@ class Binding(object):
         """
         return self.variable.element.upper() + " : " + self.constant.element
 
+
 class Bindings(object):
     """Represents Binding(s) used while matching two statements
 
@@ -363,6 +393,7 @@ class Bindings(object):
             bound variable and value is bound value,
             e.g. some_bindings.bindings_dict['?d'] => 'Nosliw'
     """
+
     def __init__(self):
         """Constructor for Bindings creating initially empty instance
         """
@@ -381,12 +412,12 @@ class Bindings(object):
             return "No bindings"
         return ", ".join((str(binding) for binding in self.bindings))
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         """Define behavior for indexing, e.g. random_bindings[key] returns
             random_bindings.bindings_dict[key] when the dictionary is not empty
             and the key exists, otherwise None
         """
-        return (self.bindings_dict[key] 
+        return (self.bindings_dict[key]
                 if (self.bindings_dict and key in self.bindings_dict)
                 else None)
 
@@ -424,7 +455,7 @@ class Bindings(object):
         Args:
             value_term (Term): value to maybe bind
             variable_term (Term): variable to maybe bind to
-        
+
         Returns:
             bool: if variable bound returns whether or not bound value matches value_term,
                 else True
@@ -432,7 +463,7 @@ class Bindings(object):
         bound = self.bound_to(variable_term.term)
         if bound:
             return value_term.term == bound
-            
+
         self.add_binding(variable_term.term, value_term.term)
         return True
 
@@ -443,6 +474,7 @@ class ListOfBindings(object):
         Attributes:
             list_of_bindings (listof Bindings): collects Bindings
     """
+
     def __init__(self):
         """Constructor for ListOfBindings
         """
@@ -465,12 +497,12 @@ class ListOfBindings(object):
         return string
 
     def __len__(self):
-        """Define behavior of len, when called on this class, 
+        """Define behavior of len, when called on this class,
             e.g. len(ListOfBindings([])) == 0
         """
         return len(self.list_of_bindings)
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         """Define behavior for indexing, e.g. random_list_of_bindings[i] returns
             random_list_of_bindings[i][0]
         """
@@ -479,7 +511,7 @@ class ListOfBindings(object):
     def add_bindings(self, bindings, facts_rules=[]):
         """Add given bindings to list of Bindings along with associated rules or facts
 
-            Args:            
+            Args:
                 bindings (Bindings): bindings to add
                 facts_rules (listof Fact|Rule): rules or facts associated with bindings
 
