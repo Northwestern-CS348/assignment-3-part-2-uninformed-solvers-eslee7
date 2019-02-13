@@ -190,27 +190,22 @@ class Puzzle8Game(GameMaster):
         Returns:
             A Tuple of Tuples that represent the game state
         """
-        '''
-        pegs = []
+
+        rows = [[-1, -1, -1],[-1, -1, -1],[-1, -1, -1]]
         for fact in self.kb.facts:
-            if fact.statement.predicate == 'isPeg':
-                peg_num = self.get_peg_num(fact.statement.terms[0])
-                pegs.append([])
+            if fact.statement.predicate == 'xy' and str(fact.statement.terms[0]) != 'empty':
+                x_num = self.get_pos_num(fact.statement.terms[1])
+                y_num = self.get_pos_num(fact.statement.terms[2])
+                rows[y_num - 1][x_num-1] = self.get_tile_num(fact.statement.terms[0])
 
-        for fact in self.kb.facts:
-            if fact.statement.predicate == 'on':
-                disk_num = self.get_disk_num(fact.statement.terms[0])
-                peg_num = self.get_peg_num(fact.statement.terms[1])
-                pegs[peg_num - 1].insert(0, disk_num) # hacky shortcut rn; go back to ensure this list is in order !!!
+        for index, list in enumerate(rows):
+            rows[index] = tuple(list)
 
-        for index, list in enumerate(pegs):
-            pegs[index] = tuple(list)
+        return tuple(rows)
 
-        return tuple(pegs)'''
-
-        rows = [[],[],[]]
-        for fact in self.kb.facts:
-            if fact.statement.predicate == 'x' and str(fact.statement.terms[1]) == 'pos1':
+    def get_pos_num(self, pos_term):
+    # helper for getting pos number
+        return int(str(pos_term)[3:])
 
     def get_tile_num(self, tile_term):
     # helper for getting tile number

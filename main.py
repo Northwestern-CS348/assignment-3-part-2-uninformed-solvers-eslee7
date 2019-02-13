@@ -4,7 +4,9 @@ from multiprocessing.context import TimeoutError
 from student_code_game_masters import *
 from student_code_uninformed_solvers import *
 
-
+'''
+TODO:
+TOH Gamemasters tests with 5 Disks'''
 class KBTest(unittest.TestCase):
 
     def setUp(self):
@@ -88,46 +90,8 @@ class KBTest(unittest.TestCase):
         self.assertEqual(th.getGameState(), ((1,2,3),(),()))
 
     # Tests TOH game masters with 2 disks on peg 2 and 1 disk on peg 3
-    def test09_GM_Hanoi(self):
-        print("-------------------------------TEST 9-------------------------------")
-        th = TowerOfHanoiGame()
-        th.read('hanoi_3_two_disks_one_disk.txt')
-        required = [
-            'fact: (movable disk1 peg3 peg1)',
-            'fact: (movable disk1 peg3 peg2)',
-        ]
-        th.setWinningCondition(required, 'hanoi_all_forbidden.txt')
-        self.assertFalse(th.isWon())
-
-        movables = th.getMovables()
-        self.assertEqual(th.getGameState(), ((),(2,3),(1,)))
-        th.makeMove(movables[1])
-        self.assertEqual(th.getGameState(), ((1,), (2, 3), ()))
-        th.reverseMove(movables[1])
-        self.assertEqual(th.getGameState(), ((), (2, 3), (1,)))
-
-    # Tests TOH game masters with 2 disks on peg 2 and 1 disk on peg 3
     def test010_GM_Hanoi(self):
-        print("-------------------------------TEST 10-------------------------------")
-        th = TowerOfHanoiGame()
-        th.read('hanoi_3_two_disks_one_disk.txt')
-        required = [
-            'fact: (movable disk1 peg3 peg1)',
-            'fact: (movable disk1 peg3 peg2)',
-        ]
-        th.setWinningCondition(required, 'hanoi_all_forbidden.txt')
-        self.assertFalse(th.isWon())
-
-        movables = th.getMovables()
-        self.assertEqual(th.getGameState(), ((),(2,3),(1,)))
-        th.makeMove(movables[2])
-        self.assertEqual(th.getGameState(), ((), (1, 2, 3), ()))
-        th.reverseMove(movables[2])
-        self.assertEqual(th.getGameState(), ((), (2, 3), (1,)))
-
-    # Tests TOH game masters with 2 disks on peg 2 and 1 disk on peg 3
-    def test011_GM_Hanoi(self):
-        print("-------------------------------TEST 11-------------------------------")
+        print("-------------------------------TEST 010-------------------------------")
         th = TowerOfHanoiGame()
         th.read('hanoi_3_two_disks_one_disk.txt')
         required = [
@@ -140,11 +104,50 @@ class KBTest(unittest.TestCase):
         movables = th.getMovables()
         self.assertEqual(th.getGameState(), ((),(2,3),(1,)))
         th.makeMove(movables[0])
-        self.assertEqual(th.getGameState(), ((2,), (3,), (1,)))
+        self.assertEqual(th.getGameState(), ((1,), (2, 3), ()))
         th.reverseMove(movables[0])
         self.assertEqual(th.getGameState(), ((), (2, 3), (1,)))
 
+    # Tests TOH game masters with 2 disks on peg 2 and 1 disk on peg 3
+    def test011_GM_Hanoi(self):
+        print("-------------------------------TEST 010-------------------------------")
+        th = TowerOfHanoiGame()
+        th.read('hanoi_3_two_disks_one_disk.txt')
+        required = [
+            'fact: (movable disk1 peg3 peg1)',
+            'fact: (movable disk1 peg3 peg2)',
+        ]
+        th.setWinningCondition(required, 'hanoi_all_forbidden.txt')
+        self.assertFalse(th.isWon())
+
+        movables = th.getMovables()
+        self.assertEqual(th.getGameState(), ((),(2,3),(1,)))
+        th.makeMove(movables[1])
+        self.assertEqual(th.getGameState(), ((), (1, 2, 3), ()))
+        th.reverseMove(movables[1])
+        self.assertEqual(th.getGameState(), ((), (2, 3), (1,)))
+
+    # Tests TOH game masters with 2 disks on peg 2 and 1 disk on peg 3
+    def test012_GM_Hanoi(self):
+        print("-------------------------------TEST 012-------------------------------")
+        th = TowerOfHanoiGame()
+        th.read('hanoi_3_two_disks_one_disk.txt')
+        required = [
+            'fact: (movable disk1 peg3 peg1)',
+            'fact: (movable disk1 peg3 peg2)',
+        ]
+        th.setWinningCondition(required, 'hanoi_all_forbidden.txt')
+        self.assertFalse(th.isWon())
+
+        movables = th.getMovables()
+        self.assertEqual(th.getGameState(), ((),(2,3),(1,)))
+        th.makeMove(movables[2])
+        self.assertEqual(th.getGameState(), ((2,), (3,), (1,)))
+        th.reverseMove(movables[2])
+        self.assertEqual(th.getGameState(), ((), (2, 3), (1,)))
+
     def test02_DFS_Hanoi(self):
+        print("-------------------------------TEST 2-------------------------------")
         th = TowerOfHanoiGame()
         th.read('hanoi_3_all_disks_on_peg_one.txt')
         required = [
@@ -164,6 +167,7 @@ class KBTest(unittest.TestCase):
         ])
 
     def test03_DFS_Hanoi(self):
+        print("-------------------------------TEST 3-------------------------------")
         th = TowerOfHanoiGame()
         th.read('hanoi_3_all_disks_on_peg_one.txt')
         required = [
@@ -177,6 +181,7 @@ class KBTest(unittest.TestCase):
         self.runSolve(solver)
 
     def test04_BFS_Hanoi(self):
+        print("-------------------------------TEST 4-------------------------------")
         th = TowerOfHanoiGame()
         th.read('hanoi_3_all_disks_on_peg_one.txt')
         required = [
@@ -196,6 +201,7 @@ class KBTest(unittest.TestCase):
         ])
 
     def test05_BFS_Hanoi(self):
+        print("-------------------------------TEST 5-------------------------------")
         th = TowerOfHanoiGame()
         th.read('hanoi_3_all_disks_on_peg_one.txt')
         required = [
@@ -208,7 +214,9 @@ class KBTest(unittest.TestCase):
         solver = SolverBFS(th, ((),(),(1,2,3)))
         self.runSolve(solver,)
 
+    # Testing 8P Gamemasters with top right empty
     def test06_GM_8Puzzle(self):
+        print("-------------------------------TEST 6-------------------------------")
         p8 = Puzzle8Game()
         p8.read('puzzle8_top_right_empty.txt')
         required = [
@@ -220,13 +228,35 @@ class KBTest(unittest.TestCase):
 
         movables = p8.getMovables()
         self.assertEqual(p8.getGameState(), ((5,4,-1),(6,1,8),(7,3,2)))
-        p8.makeMove(movables[0])
-        self.assertEqual(p8.getGameState(), ((5,-1,4), (6,1,8), (7,3,2)))
-        p8.reverseMove(movables[0])
-        self.assertEqual(p8.getGameState(), ((5,4,-1),(6,1,8),(7,3,2)))
+        #p8.makeMove(movables[0])
+        #self.assertEqual(p8.getGameState(), ((5,-1,4), (6,1,8), (7,3,2)))
+        #p8.reverseMove(movables[0])
+        #self.assertEqual(p8.getGameState(), ((5,4,-1),(6,1,8),(7,3,2)))
+
+    # Testing 8P Gamemasters with middle empty
+    def test060_GM_8Puzzle(self):
+        print("-------------------------------TEST 060-------------------------------")
+        p8 = Puzzle8Game()
+        p8.read('puzzle8_center_empty.txt')
+        required = [
+            'fact: (movable tile2 pos1 pos1 pos2 pos2)',
+            'fact: (movable tile8 pos1 pos2 pos2 pos2)',
+            'fact: (movable tile4 pos3 pos2 pos2 pos2)',
+            'fact: (movable tile6 pos2 pos3 pos2 pos2)',
+        ]
+        p8.setWinningCondition(required, 'puzzle8_all_forbidden.txt')
+        self.assertFalse(p8.isWon())
+
+        movables = p8.getMovables()
+        self.assertEqual(p8.getGameState(), ((1, 2, 3), (8, -1, 4), (7, 6, 5)))
+        # p8.makeMove(movables[0])
+        # self.assertEqual(p8.getGameState(), ((5,-1,4), (6,1,8), (7,3,2)))
+        # p8.reverseMove(movables[0])
+        # self.assertEqual(p8.getGameState(), ((5,4,-1),(6,1,8),(7,3,2)))
 
 
     def test07_DFS_8Puzzle(self):
+        print("-------------------------------TEST 7-------------------------------")
         p8 = Puzzle8Game()
         p8.read('puzzle8_top_right_empty.txt')
         required = [
@@ -246,6 +276,7 @@ class KBTest(unittest.TestCase):
         ])
 
     def test08_BFS_8Puzzle(self):
+        print("-------------------------------TEST 8-------------------------------")
         p8 = Puzzle8Game()
         p8.read('puzzle8_top_right_empty.txt')
         required = [
