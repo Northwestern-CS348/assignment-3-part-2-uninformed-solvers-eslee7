@@ -228,14 +228,33 @@ class KBTest(unittest.TestCase):
 
         movables = p8.getMovables()
         self.assertEqual(p8.getGameState(), ((5,4,-1),(6,1,8),(7,3,2)))
-        #p8.makeMove(movables[0])
-        #self.assertEqual(p8.getGameState(), ((5,-1,4), (6,1,8), (7,3,2)))
-        #p8.reverseMove(movables[0])
-        #self.assertEqual(p8.getGameState(), ((5,4,-1),(6,1,8),(7,3,2)))
+        p8.makeMove(movables[0])
+        self.assertEqual(p8.getGameState(), ((5,-1,4), (6,1,8), (7,3,2)))
+        p8.reverseMove(movables[0])
+        self.assertEqual(p8.getGameState(), ((5,4,-1),(6,1,8),(7,3,2)))
 
-    # Testing 8P Gamemasters with middle empty
+    # Testing 8P Gamemasters with top right empty
     def test060_GM_8Puzzle(self):
         print("-------------------------------TEST 060-------------------------------")
+        p8 = Puzzle8Game()
+        p8.read('puzzle8_top_right_empty.txt')
+        required = [
+            'fact: (movable tile6 pos3 pos2 pos3 pos3)',
+            'fact: (movable tile8 pos2 pos3 pos3 pos3)',
+        ]
+        p8.setWinningCondition(required, 'puzzle8_all_forbidden.txt')
+        self.assertFalse(p8.isWon())
+
+        movables = p8.getMovables()
+        self.assertEqual(p8.getGameState(), ((5, 4, -1), (6, 1, 8), (7, 3, 2)))
+        p8.makeMove(movables[1])
+        self.assertEqual(p8.getGameState(), ((5, 4, 8), (6, 1, -1), (7, 3, 2)))
+        p8.reverseMove(movables[1])
+        self.assertEqual(p8.getGameState(), ((5, 4, -1), (6, 1, 8), (7, 3, 2)))
+
+    # Testing 8P Gamemasters with middle empty
+    def test061_GM_8Puzzle(self):
+        print("-------------------------------TEST 061-------------------------------")
         p8 = Puzzle8Game()
         p8.read('puzzle8_center_empty.txt')
         required = [
@@ -243,16 +262,35 @@ class KBTest(unittest.TestCase):
             'fact: (movable tile8 pos1 pos2 pos2 pos2)',
             'fact: (movable tile4 pos3 pos2 pos2 pos2)',
             'fact: (movable tile6 pos2 pos3 pos2 pos2)',
-        ]
+        ] # ???
         p8.setWinningCondition(required, 'puzzle8_all_forbidden.txt')
         self.assertFalse(p8.isWon())
 
+        # moving tile 2
         movables = p8.getMovables()
         self.assertEqual(p8.getGameState(), ((1, 2, 3), (8, -1, 4), (7, 6, 5)))
-        # p8.makeMove(movables[0])
-        # self.assertEqual(p8.getGameState(), ((5,-1,4), (6,1,8), (7,3,2)))
-        # p8.reverseMove(movables[0])
-        # self.assertEqual(p8.getGameState(), ((5,4,-1),(6,1,8),(7,3,2)))
+        p8.makeMove(movables[0])
+        self.assertEqual(p8.getGameState(), ((1, -1, 3), (8, 2, 4), (7, 6, 5)))
+        p8.reverseMove(movables[0])
+        self.assertEqual(p8.getGameState(), ((1, 2, 3), (8, -1, 4), (7, 6, 5)))
+
+        # moving tile 4
+        p8.makeMove(movables[1])
+        self.assertEqual(p8.getGameState(), ((1, 2, 3), (8, 4, -1), (7, 6, 5)))
+        p8.reverseMove(movables[1])
+        self.assertEqual(p8.getGameState(), ((1, 2, 3), (8, -1, 4), (7, 6, 5)))
+
+        # moving tile 6
+        p8.makeMove(movables[2])
+        self.assertEqual(p8.getGameState(), ((1, 2, 3), (8, 6, 4), (7, -1, 5)))
+        p8.reverseMove(movables[2])
+        self.assertEqual(p8.getGameState(), ((1, 2, 3), (8, -1, 4), (7, 6, 5)))
+
+        # moving tile 8
+        p8.makeMove(movables[3])
+        self.assertEqual(p8.getGameState(), ((1, 2, 3), (-1, 8, 4), (7, 6, 5)))
+        p8.reverseMove(movables[3])
+        self.assertEqual(p8.getGameState(), ((1, 2, 3), (8, -1, 4), (7, 6, 5)))
 
 
     def test07_DFS_8Puzzle(self):

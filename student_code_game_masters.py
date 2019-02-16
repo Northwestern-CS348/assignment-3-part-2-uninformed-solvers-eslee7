@@ -36,16 +36,16 @@ class TowerOfHanoiGame(GameMaster):
         pegs = []
         for fact in self.kb.facts:
             if fact.statement.predicate == 'isPeg':
-                peg_num = self.get_peg_num(fact.statement.terms[0])
                 pegs.append([])
 
         for fact in self.kb.facts:
             if fact.statement.predicate == 'on':
                 disk_num = self.get_disk_num(fact.statement.terms[0])
                 peg_num = self.get_peg_num(fact.statement.terms[1])
-                pegs[peg_num - 1].insert(0, disk_num) # hacky shortcut rn; go back to ensure this list is in order !!!
+                pegs[peg_num - 1].insert(0, disk_num)
 
         for index, list in enumerate(pegs):
+            list.sort()
             pegs[index] = tuple(list)
 
         return tuple(pegs)
@@ -80,7 +80,6 @@ class TowerOfHanoiGame(GameMaster):
         oldpeg = movable_statement.terms[1]
         newpeg = movable_statement.terms[2]
 
-        disk_num = self.get_disk_num(disk)
         oldpeg_num = self.get_peg_num(oldpeg)
         newpeg_num = self.get_peg_num(newpeg)
 
@@ -92,6 +91,8 @@ class TowerOfHanoiGame(GameMaster):
 
         else:
             # else, if the peg you left is not going to be empty, find the disk below and make it topDisk
+            # easier to use kb_ask instead of all these for loops, but want to incorporate 'break'
+            # to try to reduce time complexity
             for fact in self.kb.facts:
                 if fact.statement.predicate == 'onDisk' and fact.statement.terms[0] == disk:
                     # get rid of the "onDisk" between the removed disk and the next dist
@@ -227,8 +228,27 @@ class Puzzle8Game(GameMaster):
         Returns:
             None
         """
-        ### Student code goes here
-        pass
+        tile_name = str(movable_statement.terms[0])
+        tile_x = str(movable_statement.terms[1])
+        tile_y = str(movable_statement.terms[2])
+        empty_x = str(movable_statement.terms[3])
+        empty_y = str(movable_statement.terms[4])
+
+        for fact in self.kb.facts:
+            if fact.statement.predicate == 'xy' and str(fact.statement.terms[0]) == tile_name:
+                self.kb.kb_retract(fact)
+                break
+
+        for fact in self.kb.facts:
+            if fact.statement.predicate == 'xy' and str(fact.statement.terms[0]) == 'empty':
+                self.kb.kb_retract(fact)
+                break
+
+        self.kb.kb_add(Fact(['xy', tile_name, empty_x, empty_y]))
+        self.kb.kb_add(Fact(['xy', 'empty', tile_x, tile_y]))
+
+        return
+
 
     def reverseMove(self, movable_statement):
         """
