@@ -23,10 +23,6 @@ fact: (on disk3 peg2)
 rule: ((onDisk ?x ?y) (onDisk ?y ?z)) -> (onDisk ?x ?z)
 fact: (onDisk disk2 disk3)
 
-fact: (isPeg peg1)
-fact: (isPeg peg2)
-fact: (isPeg peg3)
-
 rule: ((larger ?x ?y) (larger ?y ?z)) -> (larger ?x ?z)
 
 fact: (larger disk3 disk2)

@@ -20,10 +20,6 @@ rule: ((pred obj1 obj2) (pred obj2 obj3)) -> (pred obj1 obj3)
 
 """
 
-fact: (isPeg peg1)
-fact: (isPeg peg2)
-fact: (isPeg peg3)
-
 rule: ((onDisk ?x ?y) (on ?y ?z)) -> (on ?x ?z)
 fact: (on disk5 peg1)
 fact: (on disk2 peg3)

@@ -18,10 +18,6 @@ fact: (pred obj1 obj2)
 rule: ((pred obj1 obj2) (pred obj2 obj3)) -> (pred obj1 obj3)
 
 """
-fact: (isPeg peg1)
-fact: (isPeg peg2)
-fact: (isPeg peg3)
-
 rule: ((larger ?x ?y) (larger ?y ?z)) -> (larger ?x ?z)
 fact: (larger disk5 disk4)
 fact: (larger disk4 disk3)

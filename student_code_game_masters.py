@@ -33,10 +33,7 @@ class TowerOfHanoiGame(GameMaster):
         Returns:
             A Tuple of Tuples that represent the game state
         """
-        pegs = []
-        for fact in self.kb.facts:
-            if fact.statement.predicate == 'isPeg':
-                pegs.append([])
+        pegs = [[],[],[]]
 
         for fact in self.kb.facts:
             if fact.statement.predicate == 'on':
@@ -74,77 +71,77 @@ class TowerOfHanoiGame(GameMaster):
         Returns:
             None
         """
+        if self.isMovableLegal(movable_statement):
+            print(str(movable_statement))
 
-        game_state = self.getGameState()
-        disk = movable_statement.terms[0]
-        oldpeg = movable_statement.terms[1]
-        newpeg = movable_statement.terms[2]
+            game_state = self.getGameState()
+            disk = movable_statement.terms[0]
+            oldpeg = movable_statement.terms[1]
+            newpeg = movable_statement.terms[2]
 
-        oldpeg_num = self.get_peg_num(oldpeg)
-        newpeg_num = self.get_peg_num(newpeg)
+            oldpeg_num = self.get_peg_num(oldpeg)
+            newpeg_num = self.get_peg_num(newpeg)
 
-        # if the peg that you left will be empty, declare it as empty
-        if (len(game_state[oldpeg_num - 1]) == 1):
-            # if so, it's empty!
-            self.kb.kb_add(Fact(['empty', str(oldpeg)]))
-            print('Making old peg ' + str(oldpeg) + ' empty')
+            # if the peg that you left will be empty, declare it as empty
+            if (len(game_state[oldpeg_num - 1]) == 1):
+                # if so, it's empty!
+                self.kb.kb_add(Fact(['empty', str(oldpeg)]))
+                print('Making old peg ' + str(oldpeg) + ' empty')
 
-        else:
-            # else, if the peg you left is not going to be empty, find the disk below and make it topDisk
-            # easier to use kb_ask instead of all these for loops, but want to incorporate 'break'
-            # to try to reduce time complexity
-            for fact in self.kb.facts:
-                if fact.statement.predicate == 'onDisk' and fact.statement.terms[0] == disk:
-                    # get rid of the "onDisk" between the removed disk and the next dist
-                    self.kb.kb_retract(fact)
-                    # Add new topDisk
-                    print('Updating top disk of old peg to be ' + str(fact.statement.terms[1]))
-                    next_disk = fact.statement.terms[1]
-                    self.kb.kb_add(Fact(['topDisk', str(next_disk), str(oldpeg)]))
-                    break
+            else:
+                # else, if the peg you left is not going to be empty, find the disk below and make it topDisk
+                for fact in self.kb.facts:
+                    if fact.statement.predicate == 'onDisk' and fact.statement.terms[0] == disk:
+                        # get rid of the "onDisk" between the removed disk and all disks below
+                        self.kb.kb_retract(fact)
+                        print('Removing onDisk ' + str(fact.statement.terms[0]) + ' ' + str(fact.statement.terms[1]))
+                        # Add new topDisk
+                        next_disk = fact.statement.terms[1]
+                        self.kb.kb_add(Fact(['topDisk', str(next_disk), str(oldpeg)]))
+                        print('Adding topDisk ' + str(fact.statement.terms[1]) + ' ' + str(oldpeg))
 
+            # if the peg you're going to is empty,
+            # 1. make the dest peg not empty anymore
+            # 2. "on" the disk to the peg
+            if len(game_state[newpeg_num - 1]) == 0:
+                self.kb.kb_retract(Fact(['empty', str(newpeg)]))
+                print('Retracting that the new peg ' + str(newpeg) + ' is empty, since it will have disk')
+                self.kb.kb_add(Fact(['on', str(disk), str(newpeg)]))
+                print('Adding on ' + str(disk) + ' ' + str(newpeg))
 
-        # if the peg you're going to is empty,
-        # 1. make the dest peg not empty anymore
-        # 2. "on" the disk to the peg
-        if len(game_state[newpeg_num - 1]) == 0:
-            for fact in self.kb.facts:
-                if fact.statement.predicate == 'empty' and fact.statement.terms[0] == newpeg:
-                    print('Retracting that the new peg ' + str(newpeg) + ' is empty, since it will have disk')
-                    self.kb.kb_retract(fact)
-                    break
-            self.kb.kb_add(Fact(['on', str(disk), str(newpeg)]))
+            # else, if the peg you're going to is not empty
+            # 1. "onDisk" it to the topDisk of the new peg
+            # 2. retract that the oldTopDisk is the topDisk
+            else:
+                for fact in self.kb.facts:
+                    # find old topDisk
+                    if fact.statement.predicate == 'topDisk' and fact.statement.terms[1] == newpeg:
+                        oldTopDisk = fact.statement.terms[0]
+                        if oldTopDisk != newpeg:
+                            self.kb.kb_add(Fact(['onDisk', str(disk), str(oldTopDisk)]))
+                            print('Adding onDisk ' + str(disk) + ' ' + str(oldTopDisk))
+                        self.kb.kb_retract(fact)
+                        print('Retracting topDisk ' + str(oldTopDisk) + ' ' + str(newpeg))
+                        break
 
-        # else, if the peg you're going to is not empty
-        # 1. "onDisk" it to the topDisk of the new peg
-        # 2. retract that the oldTopDisk is the topDisk
-        else:
-            for fact in self.kb.facts:
-                # find old topDisk
-                if fact.statement.predicate == 'topDisk' and fact.statement.terms[1] == newpeg:
-                    oldTopDisk = fact.statement.terms[0]
-                    self.kb.kb_add(Fact(['onDisk', str(disk), str(oldTopDisk)]))
-                    self.kb.kb_retract(fact)
-                    break
+            # update topDisk:
+            # 1. remove the disk as a topDisk of the old peg
+            self.kb.kb_retract(Fact(['topDisk', str(disk), str(oldpeg)]))
+            print("Retracting that the topDisk of " + str(oldpeg) + " is " + str(disk))
 
-        # update topDisk:
-        # 1. remove the disk as a topDisk of the old peg
-        for fact in self.kb.facts:
-            if fact.statement.predicate == 'topDisk' and fact.statement.terms[0] == disk and \
-                    fact.statement.terms[1] == oldpeg:
-                print("Retracting that the topDisk of " + str(oldpeg) + " is " + str(disk))
-                self.kb.kb_retract(fact)
-                break
-        # 2. undo the "on" on the old peg
-        for fact in self.kb.facts:
-            if fact.statement.predicate == 'on' and fact.statement.terms[0] == disk and \
-                    fact.statement.terms[1] == oldpeg:
-                print("Taking disk " + str(disk) + ' off old peg')
-                self.kb.kb_retract(fact)
-                break
-        # 3. add it as topDisk of new peg
-        self.kb.kb_add(Fact(['topDisk', str(disk), str(newpeg)]))
+            # 2. undo the "on" on the old peg
+            self.kb.kb_retract(Fact(['on', str(disk), str(oldpeg)]))
+            print("Taking disk " + str(disk) + ' off ' + str(oldpeg))
 
+            # 3. add it as topDisk of new peg
+            self.kb.kb_add(Fact(['topDisk', str(disk), str(newpeg)]))
+            print("Adding topDisk " + str(disk) + ' ' + str(newpeg))
+
+            new_gs = str(self.getGameState())
+            print(new_gs)
+
+            if (new_gs == '((1, 2), (1, 3), ())' or new_gs == '((2,), (1, 3), ())') :
+                print(str(self.kb))
         return
 
     def reverseMove(self, movable_statement):
@@ -234,15 +231,18 @@ class Puzzle8Game(GameMaster):
         empty_x = str(movable_statement.terms[3])
         empty_y = str(movable_statement.terms[4])
 
-        for fact in self.kb.facts:
-            if fact.statement.predicate == 'xy' and str(fact.statement.terms[0]) == tile_name:
-                self.kb.kb_retract(fact)
-                break
+        #for fact in self.kb.facts:
+        #    if fact.statement.predicate == 'xy' and str(fact.statement.terms[0]) == tile_name:
+        #        self.kb.kb_retract(fact)
+        #        break
 
-        for fact in self.kb.facts:
-            if fact.statement.predicate == 'xy' and str(fact.statement.terms[0]) == 'empty':
-                self.kb.kb_retract(fact)
-                break
+        #for fact in self.kb.facts:
+        #    if fact.statement.predicate == 'xy' and str(fact.statement.terms[0]) == 'empty':
+        #        self.kb.kb_retract(fact)
+        #        break
+
+        self.kb.kb_retract(Fact(['xy', tile_name, tile_x, tile_y]))
+        self.kb.kb_retract(Fact(['xy', 'empty', empty_x, empty_y]))
 
         self.kb.kb_add(Fact(['xy', tile_name, empty_x, empty_y]))
         self.kb.kb_add(Fact(['xy', 'empty', tile_x, tile_y]))

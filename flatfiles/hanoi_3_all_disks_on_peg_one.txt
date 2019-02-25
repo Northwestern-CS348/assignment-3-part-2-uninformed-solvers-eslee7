@@ -16,15 +16,9 @@ fact: (pred obj1 obj2)
 rule: ((pred obj1 obj2) (pred obj2 obj3)) -> (pred obj1 obj3)
 
 """
-fact: (isPeg peg1)
-fact: (isPeg peg2)
-fact: (isPeg peg3)
-
 rule: ((larger ?x ?y) (larger ?y ?z)) -> (larger ?x ?z)
 fact: (larger disk3 disk2)
 fact: (larger disk2 disk1)
-
-
 
 rule: ((onDisk ?x ?y) (on ?y ?z)) -> (on ?x ?z)
 fact: (on disk3 peg1)
