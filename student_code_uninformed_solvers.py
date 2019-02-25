@@ -6,6 +6,8 @@ class SolverDFS(UninformedSolver):
     def __init__(self, gameMaster, victoryCondition):
         super().__init__(gameMaster, victoryCondition)
 
+        self.todo_movables = []
+
     def solveOneStep(self):
         """
         Go to the next state that has not been explored. If a
@@ -18,6 +20,9 @@ class SolverDFS(UninformedSolver):
         Returns:
             True if the desired solution state is reached, False otherwise
         """
+        if len(self.todo_movables) != 0:
+            self.todo_movables.clear()
+
         # Get list of all movables
         movables = self.gm.getMovables()
         # print(str(movables))
@@ -134,22 +139,24 @@ class SolverBFS(UninformedSolver):
 
         queue_item = self.bfs_queue.get()
 
-        while self.currentState.requiredMovable:
-            self.gm.reverseMove(self.currentState.requiredMovable)
-            self.currentState = self.currentState.parent
+        if queue_item:
+            while self.currentState.requiredMovable:
+                self.gm.reverseMove(self.currentState.requiredMovable)
+                self.currentState = self.currentState.parent
 
-        while queue_item.requiredMovable:
-            self.todo_movables.append(queue_item.requiredMovable)
-            queue_item = queue_item.parent
+            while queue_item.requiredMovable:
+                self.todo_movables.append(queue_item.requiredMovable)
+                queue_item = queue_item.parent
 
-        while self.todo_movables:
-            self.gm.makeMove(self.todo_movables.pop())
-            updated_gs = self.gm.getGameState()
+        if len(self.todo_movables) != 0:
+            while self.todo_movables:
+                self.gm.makeMove(self.todo_movables.pop())
+                updated_gs = self.gm.getGameState()
 
-            for child in self.currentState.children:
-                if child.state == updated_gs:
-                    self.currentState = child
-                    self.visited[self.currentState] = True
+                for child in self.currentState.children:
+                    if child.state == updated_gs:
+                        self.visited[self.currentState] = True
+                        self.currentState = child
 
         else:
             print('------------------------' + str(self.gm.getGameState()) + '----------------------')
