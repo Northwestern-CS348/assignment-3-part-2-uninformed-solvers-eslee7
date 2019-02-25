@@ -72,7 +72,7 @@ class TowerOfHanoiGame(GameMaster):
             None
         """
         if self.isMovableLegal(movable_statement):
-            print(str(movable_statement))
+            #print(str(movable_statement))
 
             game_state = self.getGameState()
             disk = movable_statement.terms[0]
@@ -86,7 +86,7 @@ class TowerOfHanoiGame(GameMaster):
             if (len(game_state[oldpeg_num - 1]) == 1):
                 # if so, it's empty!
                 self.kb.kb_add(Fact(['empty', str(oldpeg)]))
-                print('Making old peg ' + str(oldpeg) + ' empty')
+                #print('Making old peg ' + str(oldpeg) + ' empty')
 
             else:
                 # else, if the peg you left is not going to be empty, find the disk below and make it topDisk
@@ -94,20 +94,20 @@ class TowerOfHanoiGame(GameMaster):
                     if fact.statement.predicate == 'onDisk' and fact.statement.terms[0] == disk:
                         # get rid of the "onDisk" between the removed disk and all disks below
                         self.kb.kb_retract(fact)
-                        print('Removing onDisk ' + str(fact.statement.terms[0]) + ' ' + str(fact.statement.terms[1]))
+                        #print('Removing onDisk ' + str(fact.statement.terms[0]) + ' ' + str(fact.statement.terms[1]))
                         # Add new topDisk
                         next_disk = fact.statement.terms[1]
                         self.kb.kb_add(Fact(['topDisk', str(next_disk), str(oldpeg)]))
-                        print('Adding topDisk ' + str(fact.statement.terms[1]) + ' ' + str(oldpeg))
+                        #print('Adding topDisk ' + str(fact.statement.terms[1]) + ' ' + str(oldpeg))
 
             # if the peg you're going to is empty,
             # 1. make the dest peg not empty anymore
             # 2. "on" the disk to the peg
             if len(game_state[newpeg_num - 1]) == 0:
                 self.kb.kb_retract(Fact(['empty', str(newpeg)]))
-                print('Retracting that the new peg ' + str(newpeg) + ' is empty, since it will have disk')
+                #print('Retracting that the new peg ' + str(newpeg) + ' is empty, since it will have disk')
                 self.kb.kb_add(Fact(['on', str(disk), str(newpeg)]))
-                print('Adding on ' + str(disk) + ' ' + str(newpeg))
+                #print('Adding on ' + str(disk) + ' ' + str(newpeg))
 
             # else, if the peg you're going to is not empty
             # 1. "onDisk" it to the topDisk of the new peg
@@ -119,29 +119,29 @@ class TowerOfHanoiGame(GameMaster):
                         oldTopDisk = fact.statement.terms[0]
                         if oldTopDisk != newpeg:
                             self.kb.kb_add(Fact(['onDisk', str(disk), str(oldTopDisk)]))
-                            print('Adding onDisk ' + str(disk) + ' ' + str(oldTopDisk))
+                            #print('Adding onDisk ' + str(disk) + ' ' + str(oldTopDisk))
                         self.kb.kb_retract(fact)
-                        print('Retracting topDisk ' + str(oldTopDisk) + ' ' + str(newpeg))
+                        #print('Retracting topDisk ' + str(oldTopDisk) + ' ' + str(newpeg))
                         break
 
             # update topDisk:
             # 1. remove the disk as a topDisk of the old peg
             self.kb.kb_retract(Fact(['topDisk', str(disk), str(oldpeg)]))
-            print("Retracting that the topDisk of " + str(oldpeg) + " is " + str(disk))
+            #print("Retracting that the topDisk of " + str(oldpeg) + " is " + str(disk))
 
             # 2. undo the "on" on the old peg
             self.kb.kb_retract(Fact(['on', str(disk), str(oldpeg)]))
-            print("Taking disk " + str(disk) + ' off ' + str(oldpeg))
+            #print("Taking disk " + str(disk) + ' off ' + str(oldpeg))
 
             # 3. add it as topDisk of new peg
             self.kb.kb_add(Fact(['topDisk', str(disk), str(newpeg)]))
-            print("Adding topDisk " + str(disk) + ' ' + str(newpeg))
+            #print("Adding topDisk " + str(disk) + ' ' + str(newpeg))
 
             new_gs = str(self.getGameState())
-            print(new_gs)
+            #print(new_gs)
 
-            if (new_gs == '((1, 2), (1, 3), ())' or new_gs == '((2,), (1, 3), ())') :
-                print(str(self.kb))
+            #if (new_gs == '((1, 2), (1, 3), ())' or new_gs == '((2,), (1, 3), ())') :
+            #    print(str(self.kb))
         return
 
     def reverseMove(self, movable_statement):

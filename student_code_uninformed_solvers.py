@@ -1,5 +1,5 @@
 from solver import *
-import queue
+from queue import *
 
 
 class SolverDFS(UninformedSolver):
@@ -18,45 +18,64 @@ class SolverDFS(UninformedSolver):
         Returns:
             True if the desired solution state is reached, False otherwise
         """
-        # Mark current position as visited
-        if self.currentState.state == self.victoryCondition: return True
+        # Get list of all movables
         movables = self.gm.getMovables()
-        if movables:
-            if not self.currentState.children:
-                for movable in movables:
-                    self.gm.makeMove(movable)
-                    updated_gs = self.gm.getGameState()
-                    if self.currentState.parent and updated_gs == self.currentState.parent.state:
+        # print(str(movables))
+
+        # From piazza bug; return True to avoid going into more states
+        if self.currentState.state == self.victoryCondition: return True
+
+        # If you have reached the limit w/ no more nodes, need to iterate through movables
+        if not self.currentState.children:
+
+            for movable in movables:
+                # print(str(movable))
+
+                self.gm.makeMove(movable)
+
+                updated_gs = self.gm.getGameState()
+
+                if self.currentState.parent:
+                    if updated_gs == self.currentState.parent.state:
                         self.gm.reverseMove(movable)
-                        continue
                     else:
-                        valid_gs = GameState(updated_gs, self.currentState.depth + 1, movable)
+                        new_depth = 1 + self.currentState.depth
+                        valid_gs = GameState(updated_gs, new_depth, movable)
                         valid_gs.parent = self.currentState
                         self.currentState.children.append(valid_gs)
                         self.gm.reverseMove(movable)
-        if movables:
-            if self.currentState.children:
-                while True:
-                    if not self.currentState.parent and self.currentState.nextChildToVisit == len(self.currentState.children):
+
+                else:
+                    new_depth = 1 + self.currentState.depth
+                    valid_gs = GameState(updated_gs, new_depth, movable)
+                    valid_gs.parent = self.currentState
+                    self.currentState.children.append(valid_gs)
+                    self.gm.reverseMove(movable)
+
+        # If there are still nodes, explore them
+        if self.currentState.children:
+
+            while movables and True:
+
+                if self.currentState.nextChildToVisit < len(self.currentState.children):
+                    if self.currentState.children[self.currentState.nextChildToVisit] not in self.visited:
+
+                        self.currentState = self.currentState.children[self.currentState.nextChildToVisit]
+                        self.visited[self.currentState] = True
+                        self.currentState.parent.nextChildToVisit = 1 + self.currentState.parent.nextChildToVisit
+                        self.gm.makeMove(self.currentState.requiredMovable)
                         break
-                    if self.currentState.nextChildToVisit < len(self.currentState.children):
-                        if self.currentState.children[self.currentState.nextChildToVisit] not in self.visited:
-                            self.currentState = self.currentState.children[self.currentState.nextChildToVisit]
-                            self.currentState.parent.nextChildToVisit = self.currentState.parent.nextChildToVisit + 1
-                            self.visited[self.currentState] = True
-                            self.gm.makeMove(self.currentState.requiredMovable)
-                            break
-                        else:
-                            self.currentState.nextChildToVisit = self.currentState.nextChildToVisit + 1
-                            continue
+
                     else:
-                        self.gm.reverseMove(self.currentState.requiredMovable)
-                        self.currentState = self.currentState.parent
-                        continue
+                        self.currentState.nextChildToVisit = 1 + self.currentState.nextChildToVisit
+                else:
+                    self.gm.reverseMove(self.currentState.requiredMovable)
+                    self.currentState = self.currentState.parent
 
         if self.currentState.state == self.victoryCondition:
             return True
         else:
+            print('------------------------' + str(self.gm.getGameState()) + '----------------------')
             return False
 
 
@@ -64,7 +83,8 @@ class SolverBFS(UninformedSolver):
     def __init__(self, gameMaster, victoryCondition):
         super().__init__(gameMaster, victoryCondition)
 
-        self.bfs_queue = queue.Queue()
+        self.bfs_queue = Queue()
+        self.todo_movables = []
 
     def solveOneStep(self):
         """
@@ -79,6 +99,8 @@ class SolverBFS(UninformedSolver):
             True if the desired solution state is reached, False otherwise
         """
 
+        self.todo_movables.clear()
+
         self.visited[self.currentState] = True
 
         if self.currentState.state == self.victoryCondition: return True
@@ -86,15 +108,25 @@ class SolverBFS(UninformedSolver):
         movables = self.gm.getMovables()
 
         if movables:
+
             if not self.currentState.children:
+
                 for movable in movables:
                     self.gm.makeMove(movable)
                     updated_gs = self.gm.getGameState()
-                    if self.currentState.parent and updated_gs == self.currentState.parent.state:
+
+                    if self.currentState.parent:
+                        if updated_gs != self.currentState.parent.state:
+                            new_depth = 1 + self.currentState.depth
+                            valid_gs = GameState(updated_gs, new_depth, movable)
+                            valid_gs.parent = self.currentState
+                            self.currentState.children.append(valid_gs)
+                            self.bfs_queue.put(valid_gs)
                         self.gm.reverseMove(movable)
-                        continue
+
                     else:
-                        valid_gs = GameState(updated_gs, self.currentState.depth + 1, movable)
+                        new_depth = 1 + self.currentState.depth
+                        valid_gs = GameState(updated_gs, new_depth, movable)
                         valid_gs.parent = self.currentState
                         self.currentState.children.append(valid_gs)
                         self.bfs_queue.put(valid_gs)
@@ -106,21 +138,18 @@ class SolverBFS(UninformedSolver):
             self.gm.reverseMove(self.currentState.requiredMovable)
             self.currentState = self.currentState.parent
 
-        movables = []
         while queue_item.requiredMovable:
-            movables.append(queue_item.requiredMovable)
+            self.todo_movables.append(queue_item.requiredMovable)
             queue_item = queue_item.parent
 
-        while movables:
-            move = movables.pop()
-            self.gm.makeMove(move)
+        while self.todo_movables:
+            self.gm.makeMove(self.todo_movables.pop())
             updated_gs = self.gm.getGameState()
 
             for child in self.currentState.children:
                 if child.state == updated_gs:
                     self.currentState = child
                     self.visited[self.currentState] = True
-                    break
 
         else:
             print('------------------------' + str(self.gm.getGameState()) + '----------------------')

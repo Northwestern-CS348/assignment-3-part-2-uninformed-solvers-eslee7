@@ -206,7 +206,7 @@ class KBTest(unittest.TestCase):
         self.assertFalse(th.isWon())
 
         solver = SolverDFS(th, ((),(),(1,2,3,4,5)))
-        #self.runSolve(solver, 200)
+        self.runSolve(solver, 200)
 
     def test033_DFS_Hanoi(self):
         print("-------------------------------TEST 33-------------------------------")
@@ -220,7 +220,7 @@ class KBTest(unittest.TestCase):
         self.assertFalse(th.isWon())
 
         solver = SolverDFS(th, ((),(),(1,2,3,4,5)))
-        #self.runSolve(solver, 200)
+        self.runSolve(solver, 200)
 
     def test04_BFS_Hanoi(self):
         print("-------------------------------TEST 4-------------------------------")
